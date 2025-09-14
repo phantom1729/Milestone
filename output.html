@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Secure Terminal - init</title>
+  <style>
+    :root{--bg:#060606;--text:#33ff66;--muted:#9aa5a0}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b);font-family: "Courier New", Courier, monospace;color:var(--text)}
+    .wrap{max-width:900px;margin:6vh auto;padding:28px;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.6);background:rgba(0,0,0,.45)}
+    h1{margin:0 0 12px 0;font-size:20px;color:var(--text)}
+    .terminal{background:#00000022;padding:18px;border-radius:8px;min-height:260px;position:relative;overflow:hidden}
+    .line{white-space:pre-wrap;line-height:1.45;font-size:15px}
+    .muted{color:var(--muted);font-size:13px}
+    .cursor{display:inline-block;width:10px;height:18px;background:var(--text);margin-left:6px;animation:blink 1s steps(2) infinite;vertical-align:middle}
+    @keyframes blink{50%{opacity:0}}
+    .center{display:flex;gap:12px;justify-content:center;align-items:center;margin-top:18px}
+    .link-btn{padding:12px 18px;border-radius:8px;border:2px solid var(--text);background:transparent;color:var(--text);text-decoration:none;font-weight:700}
+    .link-btn:hover{background:var(--text);color:#001}
+    .progress{height:8px;background:#111;border-radius:6px;margin-top:12px;overflow:hidden}
+    .bar{height:100%;width:0%;background:linear-gradient(90deg,#33ff66,#7ef2a6);transition:width .4s ease}
+    footer{margin-top:14px;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Secure Terminal — initializing session</h1>
+    <div class="terminal" id="term" aria-live="polite">
+      <div class="line muted">[system] kernel v4.19 loaded · secure mode enabled</div>
+      <div class="line" id="output"></div>
+      <div class="cursor" id="cursor"></div>
+      <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+    </div>
+
+    <div class="center" id="final" style="display:none">
+      <a id="driveLink" class="link-btn" href="#" target="_blank" rel="noopener noreferrer">Open Retrieved File</a>
+    </div>
+
+    <footer>Connected to kali</footer>
+  </div>
+
+<script>
+(function(){
+  const seq = [
+    "[net] scanning for interfaces...",
+    "[net] interface wlan0: up · 192.168.1.9",
+    "[sec] establishing outbound secure-tunnel to 13.82.101.44:443 ...",
+    "[sec] handshake -> PKI verified · session id: " + randomHex(12),
+    "[fetch] requesting target: /shared/documents/CONFIDENTIAL.zip",
+    "[fetch] gateway responded: 200 OK",
+    "[fetch] streaming 1 of 1: CONFIDENTIAL.zip (46.2 MB)",
+    "[decrypt] applying AES-256-CBC · key derived",
+    "[decrypt] verification: PASS · integrity OK",
+    "[done] file received successfully"
+  ];
+
+  const output = document.getElementById('output');
+  const bar = document.getElementById('bar');
+  const final = document.getElementById('final');
+  const driveLink = document.getElementById('driveLink');
+
+  // --- INSERT YOUR DRIVE LINK HERE ---
+  driveLink.href = "https://drive.google.com/file/d/1ESAvh6YcnDxb6sM2TRr1Z3Etp11YFLvP/view?usp=drive_link";
+  driveLink.textContent = "Open retrieved file (Google Drive)";
+
+  // animate lines one by one
+  let i = 0;
+  function typeLine(text, cb){
+    let j = 0;
+    const speed = 18 + Math.random()*30;
+    function step(){
+      if (j <= text.length){
+        output.textContent = output.textContent.replace(/\u2588$/,'') + text.slice(0,j) + '\u2588';
+        j++;
+        setTimeout(step, speed);
+      } else {
+        output.textContent = output.textContent.replace(/\u2588$/,'') + "\n";
+        cb && cb();
+      }
+    }
+    step();
+  }
+
+  function runSequence(){
+    if (i < seq.length){
+      const percent = Math.floor((i / (seq.length)) * 100);
+      bar.style.width = percent + "%";
+      typeLine(seq[i], () => {
+        i++;
+        // small random delay between lines
+        setTimeout(runSequence, 300 + Math.random()*700);
+      });
+    } else {
+      // finish progress
+      bar.style.width = "100%";
+      // final message
+      typeLine("[complete] session closed · presenting retrieved item...", () => {
+        // hide cursor and show link
+        document.getElementById('cursor').style.display = 'none';
+        final.style.display = 'flex';
+      });
+    }
+  }
+
+  // start after tiny delay
+  setTimeout(runSequence, 600);
+
+  // helper
+  function randomHex(len){
+    const chars = "abcdef0123456789";
+    let s="";
+    for(let k=0;k<len;k++) s += chars[Math.floor(Math.random()*chars.length)];
+    return s;
+  }
+
+})();
+</script>
+</body>
+</html>
