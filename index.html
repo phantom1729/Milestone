@@ -95,7 +95,7 @@
 
 <script>
 /*
-  Ultimate Secure Terminal — Simulation
+  Ultimate Secure Terminal — pw.live
   - Start runs continuous dynamic logs for a long feel ( ~2 hours if left )
   - Stop pauses generation
   - Save Logs downloads captured JSON
@@ -295,7 +295,7 @@
     running = false;
     // clear timers
     while(timers.length) clearTimeout(timers.pop());
-    appendLine({type:{tag:"WARN",cls:"warn"}, msg:"Simulation paused by user.", meta:null});
+    appendLine({type:{tag:"WARN",cls:"warn"}, msg:"pw.live paused by user.", meta:null});
     statusEl.textContent = "paused";
   }
 
@@ -344,7 +344,7 @@
 
   // initial welcome lines
   appendLine({type:{tag:"INFO",cls:"info"}, msg:"Secure Terminal Simulator ready", meta:`session:${sessionId}`});
-  appendLine({type:{tag:"DEBUG",cls:"debug"}, msg:"Press Start to begin extended simulation (Ctrl+P to toggle).", meta:null});
+  appendLine({type:{tag:"DEBUG",cls:"debug"}, msg:"Press Start to begin extended pw.live (Ctrl+P to toggle).", meta:null});
 
   // small safety: if user leaves open too long, avoid infinite DOM growth (we limit captured array size)
   const trimInterval = setInterval(()=>{ if(captured.length>5000) captured = captured.slice(-4000); }, 60*1000);
